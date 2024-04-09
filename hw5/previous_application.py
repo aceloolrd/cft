@@ -19,6 +19,7 @@ def main(read_path: str, target_path: str, save_path: str, bootstrap: bool=True)
 
     binary_features, categorical_features, numeric_features = preprocess_data(prev_application, {'TARGET','SK_ID_CURR', 'SK_ID_PREV'})
     result_cols = select_significant_features(prev_application, binary_features, categorical_features, numeric_features, bootstrap=bootstrap)
+    result_cols.extend(['SK_ID_CURR', 'SK_ID_PREV'])
 
     prev_application[result_cols].to_csv(save_path, index=False)
     

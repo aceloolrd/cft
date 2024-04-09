@@ -18,9 +18,10 @@ def main(read_path: str, target_path: str, save_path: str, bootstrap: bool=True)
     bureau = bureau.merge(target, on = 'SK_ID_CURR')
     
     
-    binary_features, categorical_features, numeric_features = preprocess_data(bureau, {'TARGET','SK_ID_CURR'})
+    binary_features, categorical_features, numeric_features = preprocess_data(bureau, {'TARGET','SK_ID_CURR', 'SK_ID_BUREAU'})
     result_cols = select_significant_features(bureau, binary_features, categorical_features, numeric_features, bootstrap=bootstrap)
-
+    result_cols.extend(['SK_ID_CURR', 'SK_ID_BUREAU'])
+    
     bureau[result_cols].to_csv(save_path, index=False)
     print("[INFO] bureau_result successfully created")
 
