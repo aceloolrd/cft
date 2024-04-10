@@ -1,0 +1,9 @@
+## Logistic regression
+Лучшие параметры: {'classifier__C': 1, 'classifier__penalty': 'l2'}
+Итоговый показатель ROC-AUC: 0.7070581879446414
+
+## Decision Tree
+Лучшие параметры: {'classifier__max_depth': 10, 'classifier__min_samples_leaf': 1, 'classifier__min_samples_split': 10}
+Итоговый показатель ROC-AUC: 0.6776464276882085
+
+Из данных использовался только application_train, т.к. не успеваю устранить проблемы с нагенереными фичами из прошлых hw.
