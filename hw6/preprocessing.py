@@ -1,11 +1,14 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+import joblib
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.externals import joblib
-
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import roc_auc_score
+import pickle
 
 def process_categorical_features(data: pd.DataFrame) -> pd.DataFrame:
     """
@@ -65,12 +68,13 @@ def drop_missing_numerical_columns(data: pd.DataFrame, threshold: float = 1) -> 
     return data
 
 
-def prepare_data(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+def prepare_data(data: pd.DataFrame, scaler_save_path: str) -> tuple[pd.DataFrame, pd.Series]:
     """
     Подготавливает данные для обучения модели.
 
     Параметры:
         data (pd.DataFrame): Необработанные данные.
+        scaler_save_path (str): Путь для сохранения скейлера.
 
     Возвращает:
         tuple[pd.DataFrame, pd.Series]: Обработанные признаки и целевая переменная.
@@ -84,8 +88,8 @@ def prepare_data(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     X_scaled = scaler.fit_transform(X)
     X_scaled = pd.DataFrame(X_scaled, columns=X.columns)
     
-    scaler_filename = 'scaler.pkl'
-    joblib.dump(scaler, scaler_filename)
+    # Сохранение скейлера
+    joblib.dump(scaler, scaler_save_path)
 
     X_scaled_df = X_scaled.copy()
     y.reset_index(drop=True, inplace=True) 
@@ -98,13 +102,14 @@ def prepare_data(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     return X_scaled[selected_features], y  
 
 
-def main(input_path: str, output_path: str) -> None:
+def main(input_path: str, output_path: str, scaler_save_path: str) -> None:
     """
     Основная функция для обработки данных и сохранения их в файл.
 
     Параметры:
         input_path (str): Путь к файлу необработанных данных.
         output_path (str): Путь для сохранения обработанных данных.
+        scaler_save_path (str): Путь для сохранения скейлера.
 
     Возвращает:
         None
@@ -114,15 +119,18 @@ def main(input_path: str, output_path: str) -> None:
     
     # Обработка данных
     data = drop_missing_numerical_columns(data)
-    X, y = prepare_data(data)
+    X, y = prepare_data(data, scaler_save_path)
     
     # Сохранение обработанных данных в CSV
     processed_data = X.join(y) 
     processed_data.to_csv(output_path, index=False)
     print(f"Обработанные данные сохранены в {output_path}")
+    print(f"Scaler сохранен в {scaler_save_path}")
 
-# Вызов функции main с указанием пути к необработанным данным и пути для сохранения обработанных данных
+# Вызов функции main с указанием пути к необработанным данным, пути для сохранения обработанных данных
+# и пути для сохранения скейлера
 if __name__ == "__main__":
     input_path = 'E:\\home-credit-default-risk\\application_train.csv' # Замените на путь к вашему файлу данных
     output_path = 'processed_data.csv'   # Замените на путь для сохранения обработанных данных
-    main(input_path, output_path)
+    scaler_save_path = 'scaler.pkl'   # Замените на путь для сохранения скейлера
+    main(input_path, output_path, scaler_save_path)
